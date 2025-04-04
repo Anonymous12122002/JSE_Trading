@@ -4,6 +4,7 @@ import { useState, useCallback, useRef, useEffect } from "react"
 import { GoogleMap, useJsApiLoader, Marker, DirectionsRenderer, InfoWindow } from "@react-google-maps/api"
 import { Loader2 } from "lucide-react"
 import { useTracking } from "@/contexts/tracking-context"
+import { GOOGLE_MAPS_CONFIG } from "@/lib/google-maps"
 
 const containerStyle = {
   width: "100%",
@@ -34,11 +35,7 @@ export default function GoogleMapComponent({
   height = "400px",
   className = "",
 }: MapProps) {
-  const { isLoaded, google } = useJsApiLoader({
-    id: "google-map-script",
-    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "",
-    libraries: ["places", "directions"],
-  })
+  const { isLoaded, google } = useJsApiLoader(GOOGLE_MAPS_CONFIG)
 
   const [map, setMap] = useState<google.maps.Map | null>(null)
   const [directions, setDirections] = useState<google.maps.DirectionsResult | null>(null)

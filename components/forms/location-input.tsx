@@ -5,6 +5,7 @@ import { Search, MapPin, Loader2 } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { useJsApiLoader } from "@react-google-maps/api"
+import { GOOGLE_MAPS_CONFIG } from "@/lib/google-maps"
 
 type LocationInputProps = {
   value: string
@@ -21,11 +22,7 @@ export default function LocationInput({
   className = "",
   useCurrentLocation = false,
 }: LocationInputProps) {
-  const { isLoaded } = useJsApiLoader({
-    id: "google-map-script",
-    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "",
-    libraries: ["places"],
-  })
+  const { isLoaded } = useJsApiLoader(GOOGLE_MAPS_CONFIG)
 
   const [isLoadingCurrentLocation, setIsLoadingCurrentLocation] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)

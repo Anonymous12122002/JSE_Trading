@@ -5,6 +5,7 @@ import type React from "react"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { AlertCircle, Loader2 } from "lucide-react"
+import { useAuth } from "@/contexts/auth-context"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -14,6 +15,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 
 export default function RegisterForm() {
   const router = useRouter()
+  const { signUp } = useAuth()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
   const [formData, setFormData] = useState({
@@ -58,15 +60,24 @@ export default function RegisterForm() {
     setError("")
 
     try {
-      // This is where you would normally connect to your registration API
-      // For demo purposes, we'll simulate registration after a short delay
-      await new Promise((resolve) => setTimeout(resolve, 1500))
-
-      // Simulate successful registration
+      // Create user with Firebase
+      await signUp(formData.email, formData.password)
+      
       // Redirect to login page after successful registration
       router.push("/login?registered=true")
-    } catch (err) {
-      setError("Registration failed. Please try again.")
+    } catch (err: any) {
+      console.error("Registration error:", err)
+      
+      // Handle Firebase auth errors
+      if (err.code === "auth/email-already-in-use") {
+        setError("An account with this email already exists")
+      } else if (err.code === "auth/invalid-email") {
+        setError("Invalid email address")
+      } else if (err.code === "auth/weak-password") {
+        setError("Password is too weak. It should be at least 6 characters")
+      } else {
+        setError(err.message || "Failed to create account. Please try again.")
+      }
     } finally {
       setIsLoading(false)
     }

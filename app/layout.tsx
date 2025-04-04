@@ -3,6 +3,7 @@ import { Inter } from "next/font/google"
 import { ThemeProvider } from "@/components/theme-provider"
 import { AuthProvider } from "@/contexts/auth-context"
 import { TrackingProvider } from "@/contexts/tracking-context"
+import { VehicleProvider } from "@/contexts/vehicle-context"
 import { Toaster } from "@/components/ui/toaster"
 import "./globals.css"
 
@@ -24,10 +25,12 @@ export default function RootLayout({
       <body className={inter.className}>
         <AuthProvider>
           <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
-            <TrackingProvider>
-              {children}
-              <Toaster />
-            </TrackingProvider>
+            <VehicleProvider>
+              <TrackingProvider>
+                {children}
+                <Toaster />
+              </TrackingProvider>
+            </VehicleProvider>
           </ThemeProvider>
         </AuthProvider>
       </body>
