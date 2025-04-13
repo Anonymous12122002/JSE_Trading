@@ -1,0 +1,17 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /documents/{document=**} {
+      // Your existing rules here...
+      
+      // Add index configuration
+      index {
+        fields {
+          userId: ASCENDING,
+          uploadedAt: ASCENDING,
+          __name__: ASCENDING
+        }
+      }
+    }
+  }
+} 

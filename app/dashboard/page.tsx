@@ -26,47 +26,10 @@ import { Progress } from "@/components/ui/progress"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { useAuth } from "@/contexts/auth-context"
 import { useTracking } from "@/contexts/tracking-context"
+import { useVehicles } from "@/contexts/vehicle-context"
 import GoogleMapComponent from "@/components/maps/google-map"
-
-// Mock data for vehicles
-const mockVehicles = [
-  {
-    id: "v1",
-    name: "Toyota Hilux",
-    registrationNumber: "ABC 123",
-    status: "active",
-    location: "Johannesburg CBD",
-    lastUpdated: "2 minutes ago",
-    driver: "John Doe",
-    fuelLevel: 75,
-    speed: 65,
-    coordinates: { lat: -26.2041, lng: 28.0473 },
-  },
-  {
-    id: "v2",
-    name: "Ford Ranger",
-    registrationNumber: "XYZ 789",
-    status: "idle",
-    location: "Pretoria East",
-    lastUpdated: "15 minutes ago",
-    driver: "Jane Smith",
-    fuelLevel: 45,
-    speed: 0,
-    coordinates: { lat: -25.7479, lng: 28.2293 },
-  },
-  {
-    id: "v3",
-    name: "Isuzu D-Max",
-    registrationNumber: "DEF 456",
-    status: "maintenance",
-    location: "Workshop - Midrand",
-    lastUpdated: "2 hours ago",
-    driver: "Unassigned",
-    fuelLevel: 30,
-    speed: 0,
-    coordinates: { lat: -25.9893, lng: 28.1263 },
-  },
-]
+import { StatsCard } from "@/components/dashboard/StatsCard"
+import type { StatsCardProps } from "@/components/dashboard/StatsCard"
 
 // Mock data for recent trips
 const mockTrips = [
@@ -119,9 +82,97 @@ const mockStats = {
 
 export default function DashboardPage() {
   const { user } = useAuth()
-  const { vehicleLocations, isConnected, lastUpdated } = useTracking()
+  const { isConnected } = useTracking()
+  const { vehicles } = useVehicles()
   const [refreshing, setRefreshing] = useState(false)
   const [isMapLoaded, setIsMapLoaded] = useState(false)
+
+  const stats: StatsCardProps[] = [
+    {
+      type: "vehicles",
+      title: "Total Vehicles",
+      value: "3",
+      subtitle: "1 active now",
+      details: {
+        "Active Vehicles": "1",
+        "Idle Vehicles": "1",
+        "In Maintenance": "1",
+        "Total Distance Today": "450 km",
+        "Average Speed": "45 km/h",
+        "Last Location": "Mumbai, Maharashtra",
+        "Most Active Driver": "John Doe",
+        "Next Maintenance Due": "15 days",
+      },
+    },
+    {
+      type: "trips",
+      title: "Total Trips",
+      value: "25",
+      subtitle: "1,245 km traveled",
+      details: {
+        "Completed Trips": "20",
+        "Ongoing Trips": "3",
+        "Pending Trips": "2",
+        "Total Distance": "1,245 km",
+        "Average Trip Distance": "49.8 km",
+        "On-Time Delivery Rate": "95%",
+        "Most Common Route": "Mumbai - Pune",
+        "Peak Hours": "9 AM - 11 AM",
+      },
+    },
+    {
+      type: "fuel",
+      title: "Fuel Usage",
+      value: "210 liters",
+      subtitle: "5.9 km/l average",
+      details: {
+        "Total Consumption": "210 liters",
+        "Fuel Efficiency": "5.9 km/l",
+        "Cost per Liter": "₹96.50",
+        "Monthly Fuel Cost": "₹20,265",
+        "Last Refuel": "Today, 10:30 AM",
+        "Refuel Amount": "45 liters",
+        "Best Performing Vehicle": "KA01AB1234",
+        "Fuel Alerts": "1 vehicle low on fuel",
+      },
+      vehicleFuelData: [
+        {
+          name: "Toyota Hilux",
+          consumption: 85,
+          efficiency: 11.2,
+          cost: 8500,
+        },
+        {
+          name: "Ford Ranger",
+          consumption: 65,
+          efficiency: 9.8,
+          cost: 6500,
+        },
+        {
+          name: "Isuzu D-Max",
+          consumption: 60,
+          efficiency: 10.5,
+          cost: 6000,
+        },
+      ],
+    },
+    {
+      type: "expenses",
+      title: "Total Expenses",
+      value: "₹12,450",
+      subtitle: "This month",
+      details: {
+        "Fuel Expenses": "₹20,265",
+        "Maintenance Cost": "₹15,000",
+        "Driver Allowances": "₹8,500",
+        "Toll Charges": "₹4,200",
+        "Insurance Premium": "₹12,000",
+        "Repairs": "₹6,800",
+        "Other Expenses": "₹3,450",
+        "Cost per KM": "₹9.80",
+      },
+    },
+  ]
 
   // Simulate map loading
   useEffect(() => {
@@ -140,14 +191,14 @@ export default function DashboardPage() {
     }, 1500)
   }
 
-  // Simulate real-time vehicle locations for demo
+  // Update the useEffect to use real vehicles
   useEffect(() => {
     if (!isConnected) return
 
     // This would normally come from the socket connection
     // For demo purposes, we're simulating location updates
     const interval = setInterval(() => {
-      mockVehicles.forEach((vehicle) => {
+      vehicles.forEach((vehicle) => {
         // Small random movement
         const latChange = (Math.random() - 0.5) * 0.01
         const lngChange = (Math.random() - 0.5) * 0.01
@@ -155,8 +206,8 @@ export default function DashboardPage() {
         // Update vehicle location
         const updatedLocation = {
           vehicleId: vehicle.id,
-          latitude: vehicle.coordinates.lat + latChange,
-          longitude: vehicle.coordinates.lng + lngChange,
+          latitude: vehicle.coordinates?.lat + latChange || 0,
+          longitude: vehicle.coordinates?.lng + lngChange || 0,
           speed: vehicle.status === "active" ? Math.floor(Math.random() * 30) + 50 : 0,
           heading: Math.floor(Math.random() * 360),
           timestamp: Date.now(),
@@ -173,7 +224,7 @@ export default function DashboardPage() {
     }, 5000)
 
     return () => clearInterval(interval)
-  }, [isConnected])
+  }, [isConnected, vehicles])
 
   return (
     <div className="space-y-6">
@@ -207,46 +258,9 @@ export default function DashboardPage() {
 
       {/* Quick stats */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Total Vehicles</CardTitle>
-            <Truck className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{mockStats.totalVehicles}</div>
-            <p className="text-xs text-muted-foreground">{mockStats.activeVehicles} active now</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Total Trips</CardTitle>
-            <Route className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{mockStats.totalTrips}</div>
-            <p className="text-xs text-muted-foreground">{mockStats.totalDistance} traveled</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Fuel Usage</CardTitle>
-            <Fuel className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{mockStats.fuelUsed}</div>
-            <p className="text-xs text-muted-foreground">{mockStats.fuelEfficiency} average</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Total Expenses</CardTitle>
-            <CreditCard className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{mockStats.totalExpenses}</div>
-            <p className="text-xs text-muted-foreground">This month</p>
-          </CardContent>
-        </Card>
+        {stats.map((stat) => (
+          <StatsCard key={stat.type} {...stat} />
+        ))}
       </div>
 
       {/* Live tracking map */}
@@ -257,7 +271,7 @@ export default function DashboardPage() {
         </CardHeader>
         <CardContent className="p-0">
           <div className="relative w-full overflow-hidden">
-            <GoogleMapComponent height="400px" vehicleIds={mockVehicles.map((v) => v.id)} />
+            <GoogleMapComponent height="400px" vehicleIds={vehicles.map((v) => v.id)} />
           </div>
         </CardContent>
       </Card>
@@ -270,7 +284,7 @@ export default function DashboardPage() {
         </TabsList>
         <TabsContent value="vehicles" className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {mockVehicles.map((vehicle) => (
+            {vehicles.map((vehicle) => (
               <Card key={vehicle.id}>
                 <CardHeader className="pb-2">
                   <div className="flex items-start justify-between">

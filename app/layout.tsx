@@ -4,6 +4,8 @@ import { ThemeProvider } from "@/components/theme-provider"
 import { AuthProvider } from "@/contexts/auth-context"
 import { TrackingProvider } from "@/contexts/tracking-context"
 import { VehicleProvider } from "@/contexts/vehicle-context"
+import { SettingsProvider } from "@/contexts/settings-context"
+import { DocumentProvider } from "@/contexts/document-context"
 import { Toaster } from "@/components/ui/toaster"
 import "./globals.css"
 
@@ -23,16 +25,20 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
-        <AuthProvider>
-          <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
-            <VehicleProvider>
-              <TrackingProvider>
-                {children}
-                <Toaster />
-              </TrackingProvider>
-            </VehicleProvider>
-          </ThemeProvider>
-        </AuthProvider>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+          <AuthProvider>
+            <SettingsProvider>
+              <DocumentProvider>
+                <TrackingProvider>
+                  <VehicleProvider>
+                    {children}
+                    <Toaster />
+                  </VehicleProvider>
+                </TrackingProvider>
+              </DocumentProvider>
+            </SettingsProvider>
+          </AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   )

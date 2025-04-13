@@ -18,6 +18,7 @@ import {
   User,
   Users,
   FileText,
+  AlertTriangle,
 } from "lucide-react"
 import { Button, buttonVariants } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -48,6 +49,7 @@ import { useToast } from "@/components/ui/use-toast"
 import { format } from "date-fns"
 import { cn } from "@/lib/utils"
 import { useDropzone } from "react-dropzone"
+import Link from "next/link"
 
 type EmploymentType = "full-time" | "contractor"
 type DriverStatus = "active" | "inactive" | "suspended"
@@ -292,12 +294,16 @@ export default function DriversPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Drivers</h1>
-          <p className="text-muted-foreground">Manage and monitor your fleet drivers.</p>
+      <div className="flex items-center justify-between">
+        <div className="space-y-1">
+          <h2 className="text-2xl font-bold tracking-tight">Drivers</h2>
+          <p className="text-muted-foreground">Manage your fleet drivers and documents.</p>
         </div>
         <div className="flex items-center gap-2">
+          <Link href="/dashboard/drivers/debug" className="text-muted-foreground hover:underline text-sm flex items-center gap-1">
+            <AlertTriangle className="h-3 w-3" />
+            Debug Driver Data
+          </Link>
           <Dialog open={showAddDriverDialog} onOpenChange={setShowAddDriverDialog}>
             <DialogTrigger asChild>
               <Button>

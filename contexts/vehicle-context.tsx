@@ -22,16 +22,45 @@ export type Vehicle = {
   registrationNumber: string
   status: "active" | "idle" | "maintenance"
   location?: string
+  lastUpdated?: string
   driver?: string
   fuelLevel?: number
+  speed?: number
+  coordinates?: {
+    lat: number
+    lng: number
+  }
   odometer?: number
   nextService?: number
-  type: string
+  
+  // Additional RC details
+  chassisNo: string
+  engineNo: string
   make: string
   model: string
+  registrationDate: Date
+  taxValidUpto: string
+  vehicleClass: string
+  vehicleDescription: string
+  fuelType: string
+  emissionNorm: string
+  color: string
+  seatCapacity: number
+  standingCapacity: number
+  financier?: string
+  insuranceCompany?: string
+  insurancePolicyNo?: string
+  insuranceValidUpto?: Date
+  fitnessValidUpto?: Date
+  puccNo?: string
+  puccValidUpto?: Date
+  registeringAuthority?: string
+  
+  type: string
   year: string
   createdAt: Date
   updatedAt: Date
+  hasGPS?: boolean
 }
 
 type VehicleContextType = {
@@ -61,7 +90,15 @@ export function VehicleProvider({ children }: { children: React.ReactNode }) {
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const vehicleData: Vehicle[] = []
       snapshot.forEach((doc) => {
-        vehicleData.push({ id: doc.id, ...doc.data() } as Vehicle)
+        const data = doc.data()
+        // Convert Firestore timestamps to Date objects
+        const vehicle = {
+          id: doc.id,
+          ...data,
+          createdAt: data.createdAt?.toDate() || new Date(),
+          updatedAt: data.updatedAt?.toDate() || new Date()
+        } as Vehicle
+        vehicleData.push(vehicle)
       })
       setVehicles(vehicleData)
       setLoading(false)

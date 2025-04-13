@@ -4,6 +4,7 @@ import type React from "react"
 import { useState } from "react"
 import { useVehicles, type Vehicle } from "@/contexts/vehicle-context"
 import { useAuth } from "@/contexts/auth-context"
+import { format } from "date-fns"
 import {
   Clock,
   Download,
@@ -63,13 +64,33 @@ export default function VehiclesPage() {
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null)
   const [formError, setFormError] = useState("")
   const [newVehicle, setNewVehicle] = useState({
-    name: "",
-    registrationNumber: "",
-    make: "",
-    model: "",
-    year: "",
-    type: "",
-    status: "idle" as const,
+    name: "DOST RLS",
+    registrationNumber: "KA17AB0641",
+    make: "ASHOK LEYLAND LTD",
+    model: "DOST RLS",
+    year: "2024",
+    type: "Goods Carrier(LGV)",
+    status: "active" as const,
+    chassisNo: "MB1AA22E5RRKW1244",
+    engineNo: "LRH023027P",
+    registrationDate: new Date("2024-01-25"),
+    taxValidUpto: "LTT",
+    vehicleClass: "LGV",
+    vehicleDescription: "Goods Carrier(LGV)",
+    fuelType: "DIESEL",
+    emissionNorm: "BHARAT STAGE VI",
+    color: "IRISH CREAM",
+    seatCapacity: 2,
+    standingCapacity: 0,
+    financier: "CHOLAMANDALAM INVESTMENT & FINANCE",
+    insuranceCompany: "CHOLAMANDALAM GENERAL INSURANCE CO. LTD.",
+    insurancePolicyNo: "3379019673740/000/00",
+    insuranceValidUpto: new Date("2025-06-24"),
+    fitnessValidUpto: new Date("2026-06-24"),
+    puccNo: "Newv4",
+    puccValidUpto: new Date("2025-06-24"),
+    registeringAuthority: "DAVANAGERE RTO, Karnataka",
+    hasGPS: true
   })
 
   // Filter vehicles based on search query and status filter
@@ -126,13 +147,33 @@ export default function VehiclesPage() {
       })
       // Reset form
       setNewVehicle({
-        name: "",
-        registrationNumber: "",
-        make: "",
-        model: "",
-        year: "",
-        type: "",
-        status: "idle",
+        name: "DOST RLS",
+        registrationNumber: "KA17AB0641",
+        make: "ASHOK LEYLAND LTD",
+        model: "DOST RLS",
+        year: "2024",
+        type: "Goods Carrier(LGV)",
+        status: "active",
+        chassisNo: "MB1AA22E5RRKW1244",
+        engineNo: "LRH023027P",
+        registrationDate: new Date("2024-01-25"),
+        taxValidUpto: "LTT",
+        vehicleClass: "LGV",
+        vehicleDescription: "Goods Carrier(LGV)",
+        fuelType: "DIESEL",
+        emissionNorm: "BHARAT STAGE VI",
+        color: "IRISH CREAM",
+        seatCapacity: 2,
+        standingCapacity: 0,
+        financier: "CHOLAMANDALAM INVESTMENT & FINANCE",
+        insuranceCompany: "CHOLAMANDALAM GENERAL INSURANCE CO. LTD.",
+        insurancePolicyNo: "3379019673740/000/00",
+        insuranceValidUpto: new Date("2025-06-24"),
+        fitnessValidUpto: new Date("2026-06-24"),
+        puccNo: "Newv4",
+        puccValidUpto: new Date("2025-06-24"),
+        registeringAuthority: "DAVANAGERE RTO, Karnataka",
+        hasGPS: true
       })
     } catch (error) {
       console.error("Error adding vehicle:", error)
@@ -191,7 +232,7 @@ export default function VehiclesPage() {
             name="name"
             value={showEditVehicleDialog ? selectedVehicle?.name : newVehicle.name}
             onChange={handleInputChange}
-            placeholder="e.g., Delivery Truck 1"
+            placeholder="e.g., DOST RLS"
           />
         </div>
         <div className="space-y-2">
@@ -201,7 +242,30 @@ export default function VehiclesPage() {
             name="registrationNumber"
             value={showEditVehicleDialog ? selectedVehicle?.registrationNumber : newVehicle.registrationNumber}
             onChange={handleInputChange}
-            placeholder="e.g., ABC 123 GP"
+            placeholder="e.g., KA17AB0641"
+          />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="chassisNo">Chassis Number</Label>
+          <Input
+            id="chassisNo"
+            name="chassisNo"
+            value={showEditVehicleDialog ? selectedVehicle?.chassisNo : newVehicle.chassisNo}
+            onChange={handleInputChange}
+            placeholder="e.g., MB1AA22E5RRKW1244"
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="engineNo">Engine Number</Label>
+          <Input
+            id="engineNo"
+            name="engineNo"
+            value={showEditVehicleDialog ? selectedVehicle?.engineNo : newVehicle.engineNo}
+            onChange={handleInputChange}
+            placeholder="e.g., LRH023027P"
           />
         </div>
       </div>
@@ -214,7 +278,7 @@ export default function VehiclesPage() {
             name="make"
             value={showEditVehicleDialog ? selectedVehicle?.make : newVehicle.make}
             onChange={handleInputChange}
-            placeholder="e.g., Toyota"
+            placeholder="e.g., ASHOK LEYLAND LTD"
           />
         </div>
         <div className="space-y-2">
@@ -224,30 +288,76 @@ export default function VehiclesPage() {
             name="model"
             value={showEditVehicleDialog ? selectedVehicle?.model : newVehicle.model}
             onChange={handleInputChange}
-            placeholder="e.g., Hilux"
+            placeholder="e.g., DOST RLS"
           />
         </div>
       </div>
 
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="year">Year</Label>
+          <Label htmlFor="vehicleClass">Vehicle Class</Label>
           <Input
-            id="year"
-            name="year"
-            value={showEditVehicleDialog ? selectedVehicle?.year : newVehicle.year}
+            id="vehicleClass"
+            name="vehicleClass"
+            value={showEditVehicleDialog ? selectedVehicle?.vehicleClass : newVehicle.vehicleClass}
             onChange={handleInputChange}
-            placeholder="e.g., 2023"
+            placeholder="e.g., LGV"
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="type">Type</Label>
+          <Label htmlFor="fuelType">Fuel Type</Label>
           <Input
-            id="type"
-            name="type"
-            value={showEditVehicleDialog ? selectedVehicle?.type : newVehicle.type}
+            id="fuelType"
+            name="fuelType"
+            value={showEditVehicleDialog ? selectedVehicle?.fuelType : newVehicle.fuelType}
             onChange={handleInputChange}
-            placeholder="e.g., Truck"
+            placeholder="e.g., DIESEL"
+          />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="emissionNorm">Emission Norm</Label>
+          <Input
+            id="emissionNorm"
+            name="emissionNorm"
+            value={showEditVehicleDialog ? selectedVehicle?.emissionNorm : newVehicle.emissionNorm}
+            onChange={handleInputChange}
+            placeholder="e.g., BHARAT STAGE VI"
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="color">Color</Label>
+          <Input
+            id="color"
+            name="color"
+            value={showEditVehicleDialog ? selectedVehicle?.color : newVehicle.color}
+            onChange={handleInputChange}
+            placeholder="e.g., IRISH CREAM"
+          />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="insuranceCompany">Insurance Company</Label>
+          <Input
+            id="insuranceCompany"
+            name="insuranceCompany"
+            value={showEditVehicleDialog ? selectedVehicle?.insuranceCompany : newVehicle.insuranceCompany}
+            onChange={handleInputChange}
+            placeholder="Insurance Company Name"
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="insurancePolicyNo">Insurance Policy Number</Label>
+          <Input
+            id="insurancePolicyNo"
+            name="insurancePolicyNo"
+            value={showEditVehicleDialog ? selectedVehicle?.insurancePolicyNo : newVehicle.insurancePolicyNo}
+            onChange={handleInputChange}
+            placeholder="Policy Number"
           />
         </div>
       </div>
@@ -258,7 +368,7 @@ export default function VehiclesPage() {
           <Select
             name="status"
             value={selectedVehicle?.status}
-            onValueChange={(value) => handleSelectChange("status", value)}
+            onValueChange={(value: Vehicle["status"]) => handleSelectChange("status", value)}
           >
             <SelectTrigger>
               <SelectValue placeholder="Select status" />
@@ -271,6 +381,22 @@ export default function VehiclesPage() {
           </Select>
         </div>
       )}
+
+      <div className="flex items-center space-x-2">
+        <Label htmlFor="hasGPS">GPS Enabled</Label>
+        <input
+          type="checkbox"
+          id="hasGPS"
+          name="hasGPS"
+          checked={showEditVehicleDialog ? selectedVehicle?.hasGPS : newVehicle.hasGPS}
+          onChange={(e) => handleInputChange({
+            target: {
+              name: "hasGPS",
+              value: e.target.checked
+            }
+          } as any)}
+        />
+      </div>
     </div>
   )
 
@@ -421,7 +547,7 @@ export default function VehiclesPage() {
                 <CardFooter className="flex justify-between">
                   <div className="flex items-center text-sm text-muted-foreground">
                     <Clock className="mr-1 h-4 w-4" />
-                    Last updated {vehicle.updatedAt.toLocaleDateString()}
+                    Last updated {format(vehicle.updatedAt, 'MMM d, yyyy')}
                   </div>
                   <Button className={cn("h-8 w-8 p-0", buttonVariants({ variant: "ghost" }))}>
                     <Download className="h-4 w-4" />
@@ -467,7 +593,7 @@ export default function VehiclesPage() {
                     </TableCell>
                     <TableCell>{vehicle.driver || "-"}</TableCell>
                     <TableCell>{vehicle.location || "-"}</TableCell>
-                    <TableCell>{vehicle.updatedAt.toLocaleDateString()}</TableCell>
+                    <TableCell>{format(vehicle.updatedAt, 'MMM d, yyyy')}</TableCell>
                     <TableCell>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>

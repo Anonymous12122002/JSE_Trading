@@ -6,6 +6,7 @@ import {
   Calendar,
   CreditCard,
   FileText,
+  FileSpreadsheet,
   Home,
   MapPin,
   Menu,
@@ -21,6 +22,8 @@ import { ThemeToggle } from "@/components/theme-toggle"
 import { DriverProvider } from "@/contexts/driver-context"
 import { buttonVariants } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
+import { ExpensesSection } from "@/components/sidebar/ExpensesSection"
+import { ReportSection } from "@/components/sidebar/ReportSection"
 
 export default function DashboardLayout({
   children,
@@ -83,6 +86,13 @@ export default function DashboardLayout({
                     >
                       <BarChart3 className="h-5 w-5" />
                       <span>Reports</span>
+                    </Link>
+                    <Link
+                      href="/dashboard/data-export"
+                      className="flex items-center gap-2 rounded-lg px-3 py-2 text-muted-foreground hover:text-primary"
+                    >
+                      <FileSpreadsheet className="h-5 w-5" />
+                      <span>Data Export</span>
                     </Link>
                   </nav>
                 </SheetContent>
@@ -154,20 +164,8 @@ export default function DashboardLayout({
                 <MapPin className="h-4 w-4" />
                 <span>Trips</span>
               </Link>
-              <Link
-                href="/dashboard/expenses"
-                className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
-              >
-                <CreditCard className="h-4 w-4" />
-                <span>Expenses</span>
-              </Link>
-              <Link
-                href="/dashboard/reports"
-                className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
-              >
-                <BarChart3 className="h-4 w-4" />
-                <span>Reports</span>
-              </Link>
+              <ExpensesSection />
+              <ReportSection />
               <Link
                 href="/dashboard/calendar"
                 className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
@@ -181,6 +179,13 @@ export default function DashboardLayout({
               >
                 <FileText className="h-4 w-4" />
                 <span>Documents</span>
+              </Link>
+              <Link
+                href="/dashboard/data-export"
+                className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
+              >
+                <FileSpreadsheet className="h-4 w-4" />
+                <span>Data Export</span>
               </Link>
               <Link
                 href="/dashboard/settings"

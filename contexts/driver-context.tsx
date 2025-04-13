@@ -16,6 +16,7 @@ import {
 import { ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage"
 import { firestore, storage } from "@/lib/firebase"
 import { useAuth } from "./auth-context"
+import { useDocuments, type DocumentType } from "./document-context"
 
 export type DriverDocument = {
   id: string
@@ -80,6 +81,7 @@ export function DriverProvider({ children }: { children: React.ReactNode }) {
   const [drivers, setDrivers] = useState<Driver[]>([])
   const [loading, setLoading] = useState(true)
   const { user } = useAuth()
+  const { uploadDocument: uploadToDocuments } = useDocuments()
 
   useEffect(() => {
     if (!user) {
@@ -121,6 +123,23 @@ export function DriverProvider({ children }: { children: React.ReactNode }) {
     return () => unsubscribe()
   }, [user])
 
+  // Debug logs for driver data
+  useEffect(() => {
+    console.log("DriverContext - Current drivers state:", {
+      count: drivers.length,
+      loading,
+      userAuthenticated: !!user,
+      userId: user?.uid
+    });
+    
+    if (drivers.length > 0) {
+      console.log("DriverContext - First driver sample:", {
+        ...drivers[0],
+        id: drivers[0].id.substring(0, 8) + '...' // Truncate for log readability
+      });
+    }
+  }, [drivers, loading, user]);
+
   const uploadDriverPhoto = async (id: string, file: File) => {
     if (!user) throw new Error("Must be logged in to upload photos")
 
@@ -137,17 +156,55 @@ export function DriverProvider({ children }: { children: React.ReactNode }) {
   const uploadDocument = async (driverId: string, docType: string, file: File) => {
     if (!user) throw new Error("Must be logged in to upload documents")
 
+    // Get driver details for metadata
+    const driver = drivers.find(d => d.id === driverId)
+    if (!driver) throw new Error("Driver not found")
+
+    // Upload to driver's documents
     const docRef = ref(storage, `drivers/${driverId}/documents/${docType}`)
     await uploadBytes(docRef, file)
     const docUrl = await getDownloadURL(docRef)
 
+    // Update driver document reference
     const driverRef = doc(firestore, "drivers", driverId)
     await updateDoc(driverRef, {
       [`documents.${docType}Url`]: docUrl,
       updatedAt: Timestamp.now(),
     })
 
+    // Also add to central documents collection
+    try {
+      // Map driver document type to document context type
+      const documentType = mapDriverDocTypeToDocumentType(docType)
+      if (documentType) {
+        const expiryDate = docType === 'license' 
+          ? driver.documents.licenseExpiry 
+          : docType === 'medicalCert' 
+            ? driver.documents.medicalCertExpiry 
+            : undefined
+
+        await uploadToDocuments(file, documentType, {
+          entityId: driverId,
+          entityType: "driver",
+          expiryDate
+        })
+      }
+    } catch (error) {
+      console.error("Error adding to document collection:", error)
+      // Don't throw - the driver document was still updated
+    }
+
     return docUrl
+  }
+
+  // Helper function to map driver document types to document context types
+  const mapDriverDocTypeToDocumentType = (driverDocType: string): DocumentType | null => {
+    const mapping: Record<string, DocumentType> = {
+      'license': 'driverLicense',
+      'medicalCert': 'medicalReport',
+      'trainingCert': 'trainingCertificate'
+    }
+    return mapping[driverDocType] || null
   }
 
   const addDriver = async (driverData: Omit<Driver, "id" | "createdAt" | "updatedAt">) => {
@@ -161,7 +218,15 @@ export function DriverProvider({ children }: { children: React.ReactNode }) {
     }
 
     const docRef = await addDoc(collection(firestore, "drivers"), newDriver)
-    return { id: docRef.id, ...newDriver } as Driver
+    
+    // Convert Timestamp objects to Date objects for frontend use
+    const driverWithDates = {
+      ...newDriver,
+      createdAt: newDriver.createdAt.toDate(),
+      updatedAt: newDriver.updatedAt.toDate(),
+    }
+    
+    return { id: docRef.id, ...driverWithDates } as Driver
   }
 
   const updateDriver = async (id: string, driverData: Partial<Driver>) => {
